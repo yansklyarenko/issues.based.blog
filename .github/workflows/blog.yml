@@ -24,20 +24,22 @@ jobs:
           # Sanitize title for filename (lowercase, hyphenated)
           SAFE_TITLE=$(echo "$ISSUE_TITLE" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
 
-          # Escape double quotes and backslashes in the title
-          ESCAPED_TITLE=$(echo "$ISSUE_TITLE" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g')
+          # Escape double quotes in title
+          ESCAPED_TITLE=$(echo "$ISSUE_TITLE" | sed 's/"/\\"/g')
 
           # Create Markdown file
           POST_PATH="posts/${ISSUE_DATE:0:10}-$SAFE_TITLE.md"
-          echo "---" > "$POST_PATH"
-          echo "title: \"$ESCAPED_TITLE\"" >> "$POST_PATH"
-          echo "date: $ISSUE_DATE" >> "$POST_PATH"
-          echo "tags: [$ISSUE_TAGS]" >> "$POST_PATH"
-          echo "permalink: /${ISSUE_DATE:0:10}-$SAFE_TITLE/" >> "$POST_PATH"
-          echo "layout: post" >> "$POST_PATH"
-          echo "---" >> "$POST_PATH"
-          echo "" >> "$POST_PATH"
-          echo "$ISSUE_BODY" >> "$POST_PATH"
+          cat <<EOF > "$POST_PATH"
+---
+title: "$ESCAPED_TITLE"
+date: $ISSUE_DATE
+tags: [$ISSUE_TAGS]
+permalink: /${ISSUE_DATE:0:10}-$SAFE_TITLE/
+layout: post
+---
+
+$ISSUE_BODY
+EOF
 
       - name: Commit new post
         run: |

@@ -3,9 +3,5 @@ layout: default
 ---
 
 <h1>{{ page.title }}</h1>
-<p><strong>Published on:</strong> {{ page.date }}</p>
-<p><strong>Tags:</strong> {{ page.tags | join: ", " }}</p>
-
-<div>
-  {{ content }}
-</div>
+<p><em>{{ page.date | date: "%B %d, %Y" }}</em></p>
+<div>{{ content }}</div>

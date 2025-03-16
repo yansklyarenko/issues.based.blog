@@ -1,4 +1,9 @@
+title: "My Blog"
+description: "Blog powered by GitHub Issues"
+theme: minima
+plugins:
+  - jekyll-feed
 collections:
   posts:
-    output: true
-    permalink: /blog/:path/
+    output: true  # This makes sure posts get their own pages
+    permalink: /:year/:month/:day/:title/

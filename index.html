@@ -8,28 +8,17 @@
         async function loadPosts() {
             const postsContainer = document.getElementById("posts");
             postsContainer.innerHTML = "Loading...";
-
+            
             try {
-                // Manually list post numbers (since we can't auto-fetch directories in GitHub Pages)
-                const postNumbers = [1, 2, 3]; // Manually update this list as new posts are added
+                const response = await fetch("posts.json");
+                const posts = await response.json();
 
-                postsContainer.innerHTML = ""; // Clear loading text
-
-                for (const number of postNumbers) {
-                    const link = `posts/${number}.html`;
-                    const postResponse = await fetch(link);
-                    
-                    if (!postResponse.ok) continue; // Skip if file is missing
-
-                    const postText = await postResponse.text();
-                    const parser = new DOMParser();
-                    const postDoc = parser.parseFromString(postText, "text/html");
-                    const title = postDoc.querySelector("h1")?.textContent || `Post ${number}`;
-
+                postsContainer.innerHTML = "";
+                posts.forEach(post => {
                     const postItem = document.createElement("li");
-                    postItem.innerHTML = `<a href="${link}">${title}</a>`;
+                    postItem.innerHTML = `<a href="${post.url}">${post.title}</a>`;
                     postsContainer.appendChild(postItem);
-                }
+                });
             } catch (error) {
                 postsContainer.innerHTML = "Failed to load posts.";
                 console.error(error);
@@ -42,9 +31,6 @@
 <body>
     <h1>My Blog</h1>
     <p>Welcome to my blog! Here you'll find posts converted from GitHub Issues.</p>
-
-    <ul id="posts">
-        <!-- Blog post links will be inserted here -->
-    </ul>
+    <ul id="posts"></ul>
 </body>
 </html>

@@ -42,6 +42,17 @@ jobs:
           </html>
           EOF
 
+      - name: Generate Posts JSON
+        run: |
+          echo "[" > posts.json
+          for file in posts/*.html; do
+            title=$(grep -oP '(?<=<h1>).*?(?=</h1>)' "$file" | head -n 1)
+            [ -z "$title" ] && title=$(basename "$file" .html)
+            echo "  {\"title\": \"$title\", \"url\": \"$file\"}," >> posts.json
+          done
+          sed -i '$ s/,$//' posts.json
+          echo "]" >> posts.json
+
       - name: Commit and push post
         run: |
           git config --global user.name "yansklyarenko"

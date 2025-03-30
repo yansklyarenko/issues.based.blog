@@ -12,14 +12,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Python Markdown Parser
+        run: pip install commonmark
+
       - name: Convert Issue to HTML
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
           ISSUE_NUMBER="${{ github.event.issue.number }}"
           
-          # Convert Markdown to HTML using Pandoc (alternative: use a Node.js script)
-          BODY_HTML=$(echo "$ISSUE_BODY" | pandoc -f markdown -t html)
+          # Convert Markdown to HTML using commonmark
+          BODY_HTML=$(echo "$ISSUE_BODY" | python -c "import sys, commonmark; print(commonmark.commonmark(sys.stdin.read()))")
 
           # Generate an HTML file
           POST_FILE="posts/${ISSUE_NUMBER}.html"

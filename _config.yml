@@ -1,9 +1,19 @@
 title: "My Blog"
-description: "Blog powered by GitHub Issues"
-theme: minima
-plugins:
-  - jekyll-feed
+description: "A blog powered by GitHub Issues"
+baseurl: ""
+url: "https://yourusername.github.io"
+
+# Collections: Define 'posts/' as a collection of blog posts
 collections:
   posts:
-    output: true  # This makes sure posts get their own pages
-    permalink: /:year/:month/:day/:title/
+    output: true
+    permalink: /:collection/:name/
+
+# Enable Markdown and Syntax Highlighting
+markdown: kramdown
+highlighter: rouge
+
+# Exclude these from Jekyll processing
+exclude:
+  - README.md
+  - .github/

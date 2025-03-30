@@ -14,22 +14,31 @@
     <div id="content">Loading...</div>
 
     <script>
-        fetch("posts/my-post.md")
-            .then(response => response.text())
-            .then(markdown => {
-                // Parse front matter
-                const parsed = frontMatter(markdown);
-                const metadata = parsed.attributes;  // Title, date, tags, etc.
-                const content = parsed.body;        // Markdown content
-
-                // Update page with metadata
-                document.getElementById("post-title").textContent = metadata.title || "Untitled Post";
-                document.getElementById("post-date").textContent = metadata.date || "";
-
-                // Render Markdown content
-                document.getElementById("content").innerHTML = marked.parse(content);
-            })
-            .catch(error => console.error("Error loading markdown:", error));
-    </script>
+      fetch("posts/my-post.md") // Change to "posts/my-post.txt" if needed
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+              return response.text();
+          })
+          .then(markdown => {
+              console.log("Fetched Markdown:", markdown); // Debug output
+              
+              // Parse front matter
+              const parsed = frontMatter(markdown);
+              console.log("Parsed Front Matter:", parsed); // Debug output
+  
+              const metadata = parsed.attributes;  // Title, date, tags, etc.
+              const content = parsed.body;        // Markdown content
+  
+              // Update page with metadata
+              document.getElementById("post-title").textContent = metadata.title || "Untitled Post";
+              document.getElementById("post-date").textContent = metadata.date || "";
+  
+              // Render Markdown content
+              document.getElementById("content").innerHTML = marked.parse(content);
+          })
+          .catch(error => console.error("Error loading markdown:", error));
+  </script>
 </body>
 </html>

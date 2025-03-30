@@ -3,42 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown Blog</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fm@0.0.2/index.min.js"></script> <!-- Correct front-matter import -->
+    <title>My Blog</title>
+    <script>
+        async function loadPosts() {
+            const postsContainer = document.getElementById("posts");
+            postsContainer.innerHTML = "Loading...";
+
+            try {
+                const response = await fetch("posts/");
+                const text = await response.text();
+
+                // Extract links to HTML files
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "text/html");
+                const links = [...doc.querySelectorAll("a[href$='.html']")].map(a => a.href);
+
+                postsContainer.innerHTML = ""; // Clear loading text
+
+                for (const link of links) {
+                    const postResponse = await fetch(link);
+                    const postText = await postResponse.text();
+                    const postDoc = parser.parseFromString(postText, "text/html");
+                    const title = postDoc.querySelector("h1")?.textContent || "Untitled Post";
+
+                    const postItem = document.createElement("li");
+                    postItem.innerHTML = `<a href="${link}">${title}</a>`;
+                    postsContainer.appendChild(postItem);
+                }
+            } catch (error) {
+                postsContainer.innerHTML = "Failed to load posts.";
+                console.error(error);
+            }
+        }
+
+        window.onload = loadPosts;
+    </script>
 </head>
 <body>
-    <h1>My Markdown Blog</h1>
-    <h2 id="post-title"></h2>
-    <p id="post-date"></p>
-    <div id="content">Loading...</div>
+    <h1>My Blog</h1>
+    <p>Welcome to my blog! Here you'll find posts converted from GitHub Issues.</p>
 
-    <script>
-        fetch("posts/my-post.md")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(markdown => {
-                console.log("Fetched Markdown:", markdown); // Debugging step
-
-                // Parse front matter correctly
-                const parsed = fm(markdown); // Using `fm()` instead of `frontMatter()`
-                console.log("Parsed Front Matter:", parsed); // Debugging step
-
-                const metadata = parsed.attributes;  // Title, date, etc.
-                const content = parsed.body;        // Markdown content without front matter
-
-                // Update page with metadata
-                document.getElementById("post-title").textContent = metadata.title || "Untitled Post";
-                document.getElementById("post-date").textContent = metadata.date || "";
-
-                // Render Markdown content
-                document.getElementById("content").innerHTML = marked.parse(content);
-            })
-            .catch(error => console.error("Error loading markdown:", error));
-    </script>
+    <ul id="posts">
+        <!-- Blog post links will be inserted here -->
+    </ul>
 </body>
 </html>

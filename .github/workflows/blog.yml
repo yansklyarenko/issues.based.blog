@@ -12,32 +12,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract issue data
+      - name: Convert Issue to HTML
         run: |
-          mkdir -p posts  # Ensure the 'posts/' directory exists
-
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
-          ISSUE_DATE="${{ github.event.issue.created_at }}"
-          ISSUE_TAGS="$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r '.[].name' | tr '\n' ', ')"
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          
+          # Convert Markdown to HTML using Pandoc (alternative: use a Node.js script)
+          BODY_HTML=$(echo "$ISSUE_BODY" | pandoc -f markdown -t html)
 
-          # Sanitize title for filename (lowercase, hyphenated)
-          SAFE_TITLE=$(echo "$ISSUE_TITLE" | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-
-          # Escape double quotes and backslashes in the title
-          ESCAPED_TITLE=$(echo "$ISSUE_TITLE" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g')
-
-          # Create Markdown file
-          POST_PATH="posts/${ISSUE_DATE:0:10}-$SAFE_TITLE.md"
-          echo "---" > "$POST_PATH"
-          echo "title: \"$ESCAPED_TITLE\"" >> "$POST_PATH"
-          echo "date: $ISSUE_DATE" >> "$POST_PATH"
-          echo "tags: [$ISSUE_TAGS]" >> "$POST_PATH"
-          echo "permalink: /${ISSUE_DATE:0:10}-$SAFE_TITLE/" >> "$POST_PATH"
-          echo "layout: post" >> "$POST_PATH"
-          echo "---" >> "$POST_PATH"
-          echo "" >> "$POST_PATH"
-          echo "$ISSUE_BODY" >> "$POST_PATH"
+          # Generate an HTML file
+          POST_FILE="posts/${ISSUE_NUMBER}.html"
+          mkdir -p posts
+          cat <<EOF > $POST_FILE
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>$ISSUE_TITLE</title>
+          </head>
+          <body>
+              <h1>$ISSUE_TITLE</h1>
+              <div>$BODY_HTML</div>
+          </body>
+          </html>
+          EOF
 
       - name: Commit and push post
         run: |

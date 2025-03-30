@@ -40,12 +40,9 @@ jobs:
           echo "$ISSUE_BODY" >> "$POST_PATH"
 
       - name: Commit and push post
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "yansklyarenko"
           git config --global user.email "yansklyarenko@gmail.com"
-          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/yansklyarenko/issues.based.blog.git
           git add posts/
           git commit -m "Add blog post: $ISSUE_TITLE" || exit 0
           git push origin HEAD:main

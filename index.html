@@ -10,21 +10,21 @@
             postsContainer.innerHTML = "Loading...";
 
             try {
-                const response = await fetch("posts/");
-                const text = await response.text();
-
-                // Extract links to HTML files
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, "text/html");
-                const links = [...doc.querySelectorAll("a[href$='.html']")].map(a => a.href);
+                // Manually list post numbers (since we can't auto-fetch directories in GitHub Pages)
+                const postNumbers = [1, 2, 3]; // Manually update this list as new posts are added
 
                 postsContainer.innerHTML = ""; // Clear loading text
 
-                for (const link of links) {
+                for (const number of postNumbers) {
+                    const link = `posts/${number}.html`;
                     const postResponse = await fetch(link);
+                    
+                    if (!postResponse.ok) continue; // Skip if file is missing
+
                     const postText = await postResponse.text();
+                    const parser = new DOMParser();
                     const postDoc = parser.parseFromString(postText, "text/html");
-                    const title = postDoc.querySelector("h1")?.textContent || "Untitled Post";
+                    const title = postDoc.querySelector("h1")?.textContent || `Post ${number}`;
 
                     const postItem = document.createElement("li");
                     postItem.innerHTML = `<a href="${link}">${title}</a>`;
